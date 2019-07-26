@@ -8416,6 +8416,16 @@ ra-language-english@^2.9.3:
   resolved "https://registry.yarnpkg.com/ra-language-english/-/ra-language-english-2.9.3.tgz#346528ad8bc54c16ba23c011b7866d98541c6d7b"
   integrity sha512-ni923vBW0V+vMfo1NoaF8Bhk/T7GZdAyoO3J5B+/czQKCGh3bFm7D3xZExf/0NB/e/TmYUEy4noVQ+SsflY7ew==
 
+ra-tree-language-english@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/ra-tree-language-english/-/ra-tree-language-english-2.3.0.tgz#7708bf6c2270a3d76e878d3df813c2c7abdb99dd"
+  integrity sha512-oQxbeCQ1BGZrHBvsOaBfV1NKjppvNNW0eoLQgYnshWzQ8ohQL4XBiHadORawn2akCkBSPeQmG46+OuDxBiskzQ==
+
+ra-tree-language-french@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/ra-tree-language-french/-/ra-tree-language-french-2.3.0.tgz#68ccb081fdadb6b3b5d0e742da134f55fb49502a"
+  integrity sha512-YewyDVf33FA9CtE9qFdbZpwnx8RVuCPtl2+yoSfFdcKDgGfVZFLSgNqzGlRfTGo7dmHQ8sZrRgoQ9Gs1nv/x/Q==
+
 ra-ui-materialui@^2.9.3:
   version "2.9.3"
   resolved "https://registry.yarnpkg.com/ra-ui-materialui/-/ra-ui-materialui-2.9.3.tgz#a24a056e76722018480d99a55a44b955122c77ee"

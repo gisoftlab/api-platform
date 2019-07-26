@@ -1,6 +1,8 @@
 import React from 'react';
-import { AppBar } from 'react-admin';
+import { AppBar, UserMenu, MenuItemLink, translate } from 'react-admin';
 import Typography from '@material-ui/core/Typography';
+import SettingsIcon from '@material-ui/icons/Settings';
+import FaceIcon from '@material-ui/icons/Face';
 import { withStyles } from '@material-ui/core/styles';
 
 import Logo from './Logo';
@@ -17,17 +19,32 @@ const styles = {
     },
 };
 
-const CustomAppBar = withStyles(styles)(({ classes, ...props }) => (
-    <AppBar {...props}>
-    <Typography
-    variant="title"
-    color="inherit"
-    className={classes.title}
-    id="react-admin-title"
+const CustomUserMenu = translate(({ translate, ...props }) => (
+    <UserMenu {...props}>
+        <MenuItemLink
+            to="/configuration"
+            primaryText={translate('pos.configuration')}
+            leftIcon={<SettingsIcon />}
+        />
+        <MenuItemLink
+            to="/profile"
+            primaryText={translate('pos.profile')}
+            leftIcon={<FaceIcon />}
+        />
+    </UserMenu>
+));
+
+const CustomAppBar = ({ classes, ...props }) => (
+    <AppBar {...props} userMenu={<CustomUserMenu />}>
+        <Typography
+            variant="title"
+            color="inherit"
+            className={classes.title}
+            id="react-admin-title"
         />
         <Logo />
         <span className={classes.spacer} />
     </AppBar>
-));
+);
 
-export default CustomAppBar;
+export default withStyles(styles)(CustomAppBar);

@@ -16,8 +16,12 @@ use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 
+//={"access_control"="is_granted('ROLE_ADMIN') or object.owner == user", "access_control_message"="Sorry, but you are not the account owner."},
+
 /**
- * @ApiResource(attributes={
+ * @ApiResource(
+ *     attributes={
+
  *     "normalization_context"={"groups"={"account.read"}},
  *     "denormalization_context"={"groups"={"account.write"}}
  * },
