@@ -24,6 +24,7 @@ export const GreetingList = props => {
     return (
         <List {...props}>
             <Datagrid>
+                {displayField('id')}
                 {displayField('name')}
                 <ShowButton />
                 <EditButton />

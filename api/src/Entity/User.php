@@ -7,18 +7,70 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 
 /**
  * @ApiResource(
- *     normalizationContext={"groups"={"user", "user:read"}},
- *     denormalizationContext={"groups"={"user", "user:write"}}
+ *      attributes={
+ *          "normalization_context"={"groups"={"user","user.read"}},
+ *          "denormalization_context"={"groups"={"user","user.write"}}
+ *      },
+ *     description="users",
+ *     validationGroups="user.write",
+ *     itemOperations={
+ *         "get",
+ *         "put",
+ *         "delete",
+ *         "view_myself"={
+ *             "route_name"="me_view",
+ *             "swagger_context"={
+ *                  "parameters"={}
+ *              },
+ *         },
+ *         "changePassword"={
+ *             "method"="PUT",
+ *             "path"="/users/{id}/change-password",
+ *             "denormalization_context"={"groups"={"userChangePassword"}},
+ *             "validation_groups"={"userChangePassword"},
+ *             "swagger_context"={
+ *                 "summary" = "Change user password"
+ *             }
+ *         }
+ *     }
  * )
+ * @ApiFilter(
+ *     SearchFilter::class,
+ *     properties={
+ *          "id": "exact",
+ *          "fullname": "partial",
+ *          "email": "partial",
+ *          "username": "partial"
+ *     }
+ * )
+ * @ApiFilter(BooleanFilter::class, properties={"isActive"})
+ * @ApiFilter(
+ *     OrderFilter::class,
+ *          properties={
+ *              "id": "ASC",
+ *              "fullname": "ASC",
+ *              "username": "ASC",
+ *              "email": "ASC",
+ *              "isActive": "ASC"
+ *      }
+ *  )
  * @ORM\Table(name="users")
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ORM\HasLifecycleCallbacks()
  */
-class User implements UserInterface, \Serializable
+class User implements UserInterface
 {
+    const ROLE_USER = "ROLE_USER";
+    const ROLE_ADMIN = "ROLE_ADMIN";
+
     /**
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -31,31 +83,70 @@ class User implements UserInterface, \Serializable
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"user"})
+     * @Groups({
+     *     "user.read",
+     *     "user.write",
+     *     "user.update"
+     * })
      */
     private $fullname;
 
     /**
-     * @ORM\Column(type="string", length=25, unique=true)
-     * @Groups({"user"})
+     * @ORM\Column(type="string", length=50, unique=true)
+     *
+     * @Assert\NotBlank(groups={"user.write"})
+     * @Assert\Length(max="50", groups={"user.write"})
+     * @Groups({
+     *     "user.read",
+     *     "user.write",
+     *     "user.update"
+     * })
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"user:write"})
      */
     private $password;
 
+
     /**
-     * @ORM\Column(type="string", length=60, unique=true)
-     * @Groups({"user"})
+     * @Assert\NotBlank(groups={"user.write","user.update", "userChangePassword"})
+     * @Assert\Length(min="3", max="255", groups={"user.write","user.update", "userChangePassword"})
+     * @Groups({
+     *     "user.update",
+     *     "user.write",
+     *     "userChangePassword"
+     * })
+     * @var string
+     */
+    public $plainPassword;
+
+    /**
+     * @var string
+     * @ORM\Column(name="email", length=150, type="string", unique=true)
+     * @Assert\NotBlank(groups={"user"})
+     * @Assert\Email(
+     *     message = "The email '{{ value }}' is not a valid email.",
+     *     checkMX = true,
+     *     groups={"user.write"}
+     * )
+     * @Assert\Length(max="150", groups={"user.write"})
+     * @Groups({
+     *     "user.read",
+     *     "user.write",
+     *     "user.update"
+     * })
      */
     private $email;
 
     /**
      * @ORM\Column(name="is_active", type="boolean")
-     * @Groups({"user"})
+     * @Groups({
+     *     "user.read",
+     *     "user.write",
+     *     "user.update"
+     * })
      */
     private $isActive;
 
@@ -63,7 +154,7 @@ class User implements UserInterface, \Serializable
      * @var \DateTime $updatedAt
      *
      * @ORM\Column(name="last_login", type="datetime", nullable=true)
-     * @Groups({"user"})
+     * @Groups({"user.read"})
      */
     private $last_login;
 
@@ -82,15 +173,17 @@ class User implements UserInterface, \Serializable
     private $updatedAt;
 
     /**
-     * @ORM\Column(type="json")
-     * @Groups({"user"})
+     * @ORM\Column(type="string", length=50)
+     * @Assert\NotBlank(groups={"user"})
+     * @Groups({
+     *     "user"
+     * })
      */
-    private $roles = [];
+    protected $role = self::ROLE_USER;
 
-    public function __construct()
+    public function __construct($id = null)
     {
-        // may not be needed, see section on salt below
-        // $this->salt = md5(uniqid('', true));
+        $this->id = $id;
     }
 
     public function getId(): ?int
@@ -143,27 +236,25 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 
-    public function getRoles(): array
+    public function getRole()
     {
-       // return array('ROLE_ADMIN');
-
-        $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return $this->role;
     }
 
-    /**
-     * @param mixed $roles
-     */
-    public function setRoles($roles): void
+    public function setRole($role = null)
     {
-        $this->roles = $roles;
+        $this->role = $role;
+    }
+
+    public function getRoles()
+    {
+        return [self::ROLE_ADMIN];
+        //return [$this->getRole()];
     }
 
     public function eraseCredentials()
     {
+        $this->plainPassword = null;
     }
 
     public function setFullname(?string $fullname): void
@@ -272,29 +363,4 @@ class User implements UserInterface, \Serializable
     public function setUpdatedAtValue() {
         $this->updatedAt = new \DateTime();
     }
-
-    /** @see \Serializable::serialize() */
-    public function serialize()
-    {
-        return serialize(array(
-            $this->id,
-            $this->username,
-            $this->password,
-            // see section on salt below
-            // $this->salt,
-        ));
-    }
-
-    /** @see \Serializable::unserialize() */
-    public function unserialize($serialized)
-    {
-        list (
-            $this->id,
-            $this->username,
-            $this->password,
-            // see section on salt below
-            // $this->salt
-            ) = unserialize($serialized, array('allowed_classes' => ['User']));
-    }
-
 }

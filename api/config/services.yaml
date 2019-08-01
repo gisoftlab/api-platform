@@ -23,5 +23,22 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
+    App\Security\Voter\ProductVoter:
+        class: App\Security\Voter\ProductVoter
+        tags:
+            - { name: security.voter }
+
+    Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter: ~
+
+#    App\EventListener\UserSubscriber:
+#        tags:
+#            - { name: doctrine.event_listener, event: postPersist }
+
+#    event_listener.resource.control_access:
+#        class: App\EventListener\Resource\ControlAccessListener
+#        arguments: ['@security.authorization_checker']
+#        tags:
+#            - { name: kernel.event_listener, event: kernel.request, priority: 3 }
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

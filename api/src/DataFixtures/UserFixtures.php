@@ -24,7 +24,7 @@ class UserFixtures extends Fixture
         $user->setEmail('email@email.com');
         $user->setIsActive(true);
         $user->setFullname('username');
-        $user->setRoles(array('ROLE_ADMIN'));
+        $user->setRole('ROLE_ADMIN');
         $user->setPassword($this->passwordEncoder->encodePassword(
             $user,
             '123'
@@ -42,7 +42,7 @@ class UserFixtures extends Fixture
                 $user,
                 'password'
             ));
-            $user->setRoles(array('ROLE_ADMIN'));
+            $user->setRole('ROLE_ADMIN');
             $manager->persist($user);
         }
 

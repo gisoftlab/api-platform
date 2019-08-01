@@ -20,18 +20,25 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     attributes={
-
- *     "normalization_context"={"groups"={"account.read"}},
- *     "denormalization_context"={"groups"={"account.write"}}
- * },
- * itemOperations={
- *  "put"={"denormalization_context"={"groups"={"account.update"}}},
-    "get",
-    "delete"
- * })
+ *      routePrefix="/api",
+ *      attributes={
+ *          "normalization_context"={"groups"={"account.read"}},
+ *          "denormalization_context"={"groups"={"account.write"}}
+ *      },
+ *      itemOperations={
+ *          "get",
+ *          "put"={"denormalization_context"={"groups"={"account.update"}}},
+ *          "delete"
+ *      }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\AccountRepository")
- * @ApiFilter(SearchFilter::class, properties={"id": "exact","username": "partial"})
+ * @ApiFilter(
+ *     SearchFilter::class,
+ *      properties={
+ *          "id": "exact",
+ *           "username": "partial"
+ *      }
+ * )
  * @ApiFilter(BooleanFilter::class, properties={"isActive"})
  * @ApiFilter(OrderFilter::class, properties={"id": "ASC", "username": "DESC"})
  * @ApiFilter(PropertyFilter::class, arguments={"parameterName": "username"})
@@ -72,7 +79,9 @@ class Account
      * @ORM\ManyToMany(targetEntity="App\Entity\Role", mappedBy="accounts")
      * @ApiSubresource(maxDepth=1)
      * @Groups({
-     *     "account.read"
+     *     "account.read",
+     *     "account.write",
+     *     "account.update"
      * })
      */
     private $roles;
@@ -90,6 +99,7 @@ class Account
 
     public function __construct()
     {
+        $this->isActive = true;
         $this->roles = new ArrayCollection();
     }
 

@@ -8,17 +8,48 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
-use Gedmo\Mapping\Annotation as Gedmo;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
+use App\Controller\ProductsSpecial;
+use App\Controller\CreateProductPublication;
+use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 
+//= {"method"="GET","access_control"="is_granted('custom_action', object)"},
 /**
  * Product entity
  *
- * @ApiResource
+ * @ApiResource(
+ *     attributes={
+ *     "access_control"="is_granted('ROLE_ADMIN')",
+ *     "normalization_context"={"groups"={"product","product.read"}},
+ *     "denormalization_context"={"groups"={"product","product.write"}}
+ * },
+ * itemOperations={
+ *   "put",
+ *   "get",
+ *   "delete",
+ *   "post_publication"={
+ *         "method"="POST",
+ *         "path"="/product/{id}/publication",
+ *         "controller"=CreateProductPublication::class,
+ *         "read"=false,
+ *   }
+ *
+ * })
+ * @ApiFilter(
+ *     OrderFilter::class,
+ *          properties={
+ *              "id": "ASC",
+ *              "title": "ASC",
+ *              "short": "ASC",
+ *              "published": "ASC",
+ *              "price": "ASC"
+ *      }
+ *  )
  * @ORM\Table(name="products__product")
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
- * @ApiFilter(NumericFilter::class, properties={"price"})
+ * @ApiFilter(NumericFilter::class, properties={"title"})
  * @ORM\HasLifecycleCallbacks()
  */
 class Product {
@@ -29,6 +60,8 @@ class Product {
      * @ORM\Column(name="id", type="integer", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     *
+     * @Groups({"product:read"})
      */
     private $id;
 
@@ -40,6 +73,8 @@ class Product {
      * )
      * @Assert\NotBlank(message="Please provide title")
      * @ORM\Column(name="title", type="string", length=255, nullable=true)
+     *
+     * @Groups({"product"})
      */
     private $title;
 
@@ -51,6 +86,7 @@ class Product {
      * )
      * @Assert\NotBlank(message="Please provide title")
      * @ORM\Column(name="short", type="text", nullable=true)
+     * @Groups({"product.write"})
      */
     private $short;
 
@@ -58,6 +94,8 @@ class Product {
      * @var string $description
 
      * @ORM\Column(name="description", type="text", nullable=true)
+     *
+     * @Groups({"product.write"})
      */
     private $description;
 
@@ -65,6 +103,8 @@ class Product {
      * @var boolean $published
      *
      * @ORM\Column(name="published", type="boolean", nullable=true)
+     *
+     * @Groups({"product"})
      */
     private $published = true;
 
@@ -72,6 +112,8 @@ class Product {
      * @var boolean $promoted
      *
      * @ORM\Column(name="promoted", type="boolean", nullable=true)
+     *
+     * @Groups({"product"})
      */
     private $promoted = false;
 
@@ -85,6 +127,8 @@ class Product {
      *      maxMessage = "This value should be {{ limit }} or less"
      * )
      * @ORM\Column(name="price", type="decimal", scale=2, nullable=true)
+     *
+     * @Groups({"product"})
      */
     private $price = 0;
 
@@ -97,11 +141,15 @@ class Product {
      *      maxMessage = "This value should be {{ limit }} or less"
      * )
      * @ORM\Column(name="deposit", type="decimal", scale=2, nullable=true)
+     *
+     * @Groups({"product"})
      */
     private $deposit = 0;
 
 
     /**
+     * @ApiSubresource()
+     *
      * @ORM\OneToMany(
      *   targetEntity="ProductItems",
      *   mappedBy="product",
@@ -124,13 +172,15 @@ class Product {
      */
     private $updatedAt;
 
+    /**
+     * @var
+     */
+    private $result;
+
     public function __construct() {
         $this->items = new ArrayCollection();
     }
 
-    public function __toString() {
-        return $this->getTitle();
-    }
 
     public function getId() {
         return $this->id;
@@ -367,6 +417,22 @@ class Product {
      */
     public function setUpdatedAtValue() {
         $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * @param mixed $result
+     */
+    public function setResult($result): void
+    {
+        $this->result = $result;
     }
 
 

@@ -1,13 +1,21 @@
-// import PeopleIcon from '@material-ui/icons/People';
-import UserCreate from 'Create';
-// import UserEdit from './Edit';
-// import UserList from './List';
-// import UserShow from './Show';
+//import PeopleIcon from '@material-ui/icons/People';
+//import ProductCreate from 'Create';
+import {ProductList} from "./List";
+// import {ProductEdit} from "Edit";
+// import {ProductShow} from "Show";
+
 
 export default {
-//    list: UserList,
-    create: UserCreate,
-    // edit: UserEdit,
-    // show: UserShow,
-    // icon: PeopleIcon,
+    name: 'products',
+    list: ProductList
+//    create: ProductCreate,
+//    edit: ProductEdit,
+//    show: ProductShow,
+//     fields: [
+//         {
+//             name: 'name',
+//             // input: greetingsNameInput,
+//             // field: greetingsNameField,
+//         }
+//     ],
 };

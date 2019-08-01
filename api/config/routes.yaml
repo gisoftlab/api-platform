@@ -5,3 +5,23 @@
 authentication_token:
   path: /authentication_token
   methods: ['POST']
+
+gesdinet_jwt_refresh_token:
+  path:       /api/token/refresh
+  controller: gesdinet.jwtrefreshtoken::refresh
+
+#product_post_publication:
+#  path: /product/{id}/publication
+#  methods: ['POST']
+#  defaults:
+#    _controller: App\Controller\ProductController::getResult
+#    _api_resource_class: App\Entity\Product
+#    _api_item_operation_name: post_publication
+
+get_match:
+  path: /product/{id}/mathches.{_format}
+  methods: ['GET']
+  defaults:
+    _controller: App\Controller\ProductController::getResult
+    _api_resource_class: App\Entity\Product
+    _api_item_operation_name: get
