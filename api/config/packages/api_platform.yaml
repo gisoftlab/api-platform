@@ -11,7 +11,7 @@ api_platform:
         paths: ['%kernel.project_dir%/src/Entity']
 
     # The title of the API.
-    title: 'Hello CRM'
+    title: 'TLUSTY CRM'
     # The description of the API.
     description: 'description'
     version: 1.0.0

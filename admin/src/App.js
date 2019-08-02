@@ -1,6 +1,7 @@
 import React from 'react';
 import parseHydraDocumentation from '@api-platform/api-doc-parser/lib/hydra/parseHydraDocumentation';
 import { HydraAdmin, hydraClient, fetchHydra as baseFetchHydra, replaceResources } from '@api-platform/admin';
+import { createMuiTheme } from '@material-ui/core/styles';
 import authProvider from './authProvider';
 import i18nProvider from './i18nProvider';
 import { Route, Redirect } from 'react-router-dom';
@@ -15,6 +16,12 @@ const newResources = [
     greetings,
     products,
 ];
+
+const theme = createMuiTheme({
+    palette: {
+        type: 'light'
+    },
+});
 
 const entrypoint = process.env.REACT_APP_API_ENTRYPOINT; // Change this by your own entrypoint if you're not using API Platform distribution
 const fetchHeaders = {'Authorization': `Bearer ${localStorage.getItem('token')}`};
@@ -59,7 +66,7 @@ export default () => (
         i18nProvider={i18nProvider}
         loginPage={Login}
         customRoutes={customRoutes}
-        //theme={ theme }
+        theme={ theme }
         appLayout={Layout}
     />
 );

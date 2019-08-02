@@ -5,7 +5,11 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiSubresource;
+use ApiPlatform\Core\Annotation\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use App\Entity\MediaObject;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\ArrayCollection as ArrayCollection;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
@@ -34,6 +38,15 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  *         "path"="/product/{id}/publication",
  *         "controller"=CreateProductPublication::class,
  *         "read"=false,
+ *         "swagger_context"= {
+ *                  "summary"= "make product publicated.",
+ *                  "description"= "Products a page (i.e. help, terms, privacy)",
+ *                  "parameters"= {
+ *                      {
+ *
+ *                      },
+ *                  },
+ *              },
  *   }
  *
  * })
@@ -95,7 +108,7 @@ class Product {
 
      * @ORM\Column(name="description", type="text", nullable=true)
      *
-     * @Groups({"product.write"})
+     * @Groups({"product"})
      */
     private $description;
 
@@ -157,6 +170,16 @@ class Product {
      * )
      */
     private $items;
+
+
+    /**
+     * @var MediaObject|null
+     *
+     * @ORM\ManyToOne(targetEntity=MediaObject::class)
+     * @ORM\JoinColumn(nullable=true)
+     * @ApiProperty(iri="http://schema.org/image")
+     */
+    public $image;
 
     /**
      * @var \DateTime $createdAt

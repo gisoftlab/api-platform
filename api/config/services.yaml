@@ -23,12 +23,33 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
+
+    Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter: ~
+
+    # Voters Extension
     App\Security\Voter\ProductVoter:
-        class: App\Security\Voter\ProductVoter
+        class: 'App\Security\Voter\ProductVoter'
         tags:
             - { name: security.voter }
 
-    Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter: ~
+    # Documentation Extension
+    App\Swagger\SwaggerDecorator:
+        decorates: 'api_platform.swagger.normalizer.documentation'
+        arguments: [ '@App\Swagger\SwaggerDecorator.inner' ]
+        autoconfigure: false
+
+
+    # Doctrine Extension
+    App\Doctrine\PublishedProductExtension:
+        tags:
+            - { name: api_platform.doctrine.orm.query_extension.collection, priority: 9 }
+            - { name: api_platform.doctrine.orm.query_extension.item }
+
+    # Serialization Groups
+    App\Serializer\AdminContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+        arguments: [ '@App\Serializer\AdminContextBuilder.inner' ]
+        autoconfigure: false
 
 #    App\EventListener\UserSubscriber:
 #        tags:
