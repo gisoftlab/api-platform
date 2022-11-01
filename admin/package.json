@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@api-platform/admin": "^0.6.1",
+    "@api-platform/admin": "^3.4.3",
     "@babel/runtime": "7.0.0-beta.55",
     "ra-tree-language-english": "^2.3.0",
     "ra-tree-language-french": "^2.3.0",
